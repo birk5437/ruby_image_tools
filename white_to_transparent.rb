@@ -37,7 +37,7 @@ for y in 0..dim.height - 1 do
   end
   # puts y
 end
-png.save("#{directory}#{new_file_name}", {fast_rgba: true, interlace: true})
+png.save("#{directory}#{file_name}", {fast_rgba: true, interlace: true})
 
 # puts "#{directory}#{new_file_name}"
 
