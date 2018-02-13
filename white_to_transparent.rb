@@ -1,4 +1,5 @@
 require 'chunky_png'
+# require 'pry'
 # puts ARGF[0]
 # raise ARGV[0].inspect
 # Creating an image from scratch, save as an interlaced PNG
@@ -10,7 +11,7 @@ new_file_name = "#{file_name.gsub('.png', '')}_transparent.png"
 white_cutoff = if ARGV.length > 1
   ARGV[1].to_i
 else
-  240
+  140
 end
 
 png = ChunkyPNG::Image.from_file(ARGV[0])
@@ -21,11 +22,15 @@ dim = png.dimension
 
 for y in 0..dim.height - 1 do
   for x in 0..dim.width - 1 do  
-    color_value = png[x,y]
-    black_distance = ChunkyPNG::Color.euclidean_distance_rgba(color_value, ChunkyPNG::Color::PREDEFINED_COLORS[:black])
-    white_distance = ChunkyPNG::Color.euclidean_distance_rgba(color_value, ChunkyPNG::Color::PREDEFINED_COLORS[:white])
 
-    if png[x,y] >= ChunkyPNG::Color.rgb(white_cutoff, white_cutoff,white_cutoff)
+    color_value = png[x,y]
+    rgb = ChunkyPNG::Color.to_truecolor_bytes(color_value)
+    max_val = rgb.max
+    diff_array = rgb.map{ |i| (max_val - i) / max_val.to_f }
+    is_grey_ish = diff_array.map{ |pct| pct < 0.1 }.all?
+
+    # binding.pry
+    if png[x,y] >= ChunkyPNG::Color.rgb(white_cutoff, white_cutoff,white_cutoff) && is_grey_ish
       # png[x,y] = ChunkyPNG::Color::PREDEFINED_COLORS[:cyan]
       # png[x,y] = ChunkyPNG::Color.rgba(231, 212,129, 255)
       png[x,y] = ChunkyPNG::Color.rgba(0, 0,0,0)
